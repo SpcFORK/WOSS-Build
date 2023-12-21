@@ -19,7 +19,7 @@ Here are some examples of how you can use WOSScript:
 
 ```javascript
 // Create a new instance of WOSscript
-const wosScript = new WOSscript();
+const wosScript = new WOSScript();
 
 // Parse a WOSScript string
 const result = wosScript.parse(`your WOSScript code here`);
