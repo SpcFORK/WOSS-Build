@@ -7,6 +7,7 @@
 
 import Shout from '../shoutp';
 import * as Gd from './Gradule-web';
+import './types'
 
 /** WOSscript - A Module building language. */
 // © SpcFORK, SpectCOW 2023
@@ -47,11 +48,6 @@ The syntax follows the syntax of JS, but with some slight variations depending o
 The main goal for this is to be able to write Object Models and higher quality modules in JS, where a single root namespace is sufficient.
 
 */
-
-interface Opts {
-  platform?: 'web' | 'node' | 'neut',
-  type?: 'object' | 'class' | 'function' | 'async' | 'sync',
-}
 
 class WOSscript {
   opts: Opts = {
@@ -255,25 +251,8 @@ class WOSscript {
   }
 }
 
-console.log(
-  new WOSscript({ platform: 'neut', type: 'object' })
-  .exec(`
-core: {
-  wow: ''
-};;
-
-wow: {
-  asd: "asd"
-};;
-
-jeez: ({
-  'wow': {
-    wow: "wow"
-  }
-})
-`));
-
-// export default {
-//   WOSscript
-//   opts
-// }
+;(
+  (globalThis?.window) && (Object.assign(window, { WOSscript })) 
+    ||
+  (globalThis?.module) && (module.exports = { WOSscript })
+);

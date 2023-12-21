@@ -6,6 +6,9 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __esm = (fn, res) => function __init() {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  };
   var __commonJS = (cb, mod) => function __require() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
@@ -179,10 +182,18 @@
     }
   });
 
+  // src/types.ts
+  var init_types = __esm({
+    "src/types.ts"() {
+      "use strict";
+    }
+  });
+
   // src/WOSscript.ts
   var require_WOSscript = __commonJS({
     "src/WOSscript.ts"(exports, module) {
       var Gd = __toESM(require_Gradule_web());
+      init_types();
       var WOSscript = class {
         opts = {
           platform: "web",
@@ -357,23 +368,7 @@ window.$wosglobe = $wosglobe;`;
           return evalResp;
         }
       };
-      console.log(
-        new WOSscript({ platform: "neut", type: "object" }).exec(`
-core: {
-  wow: ''
-};;
-
-wow: {
-  asd: "asd"
-};;
-
-jeez: ({
-  'wow': {
-    wow: "wow"
-  }
-})
-`)
-      );
+      globalThis?.window && Object.assign(window, { WOSscript }) || globalThis?.module && (module.exports = { WOSscript });
     }
   });
   require_WOSscript();

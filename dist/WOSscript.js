@@ -354,20 +354,4 @@ window.$wosglobe = $wosglobe;`;
     return evalResp;
   }
 };
-console.log(
-  new WOSscript({ platform: "neut", type: "object" }).exec(`
-core: {
-  wow: ''
-};;
-
-wow: {
-  asd: "asd"
-};;
-
-jeez: ({
-  'wow': {
-    wow: "wow"
-  }
-})
-`)
-);
+globalThis?.window && Object.assign(window, { WOSscript }) || globalThis?.module && (module.exports = { WOSscript });
