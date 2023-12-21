@@ -7,6 +7,7 @@ export default defineConfig({
   clean: true,
   platform: 'neutral',
   outDir: 'dist',
+  bundle: true,
   dts: true,
   format: ['cjs', 'esm', 'iife'],
 })

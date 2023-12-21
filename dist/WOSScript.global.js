@@ -189,12 +189,12 @@
     }
   });
 
-  // src/WOSscript.ts
-  var require_WOSscript = __commonJS({
-    "src/WOSscript.ts"(exports, module) {
+  // src/WOSScript.ts
+  var require_WOSScript = __commonJS({
+    "src/WOSScript.ts"(exports, module) {
       var Gd = __toESM(require_Gradule_web());
       init_types();
-      var WOSscript = class {
+      var WOSScript = class {
         opts = {
           platform: "web",
           type: "object"
@@ -368,8 +368,8 @@ window.$wosglobe = $wosglobe;`;
           return evalResp;
         }
       };
-      globalThis?.window && Object.assign(window, { WOSscript }) || globalThis?.module && (module.exports = { WOSscript });
+      globalThis?.window && Object.assign(window, { WOSScript }) || globalThis?.module && (module.exports = { WOSScript });
     }
   });
-  require_WOSscript();
+  require_WOSScript();
 })();

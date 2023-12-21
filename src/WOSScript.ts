@@ -9,7 +9,7 @@ import Shout from '../shoutp';
 import * as Gd from './Gradule-web';
 import './types'
 
-/** WOSscript - A Module building language. */
+/** WOSScript - A Module building language. */
 // © SpcFORK, SpectCOW 2023
 /* 
     ,""""""""""""""""",^,"""""""""""",                  
@@ -33,7 +33,7 @@ import './types'
         ^I"I!!!!!!!!!!!">:!!!!!!!!!!,",^                
            ^```````````^ ^``````````^
 
-WOSscript,
+WOSScript,
 
 A parser which is a subset of JS, it loads files and builds an object around that file, which is a cool hacky way to build Object Models
 
@@ -49,7 +49,7 @@ The main goal for this is to be able to write Object Models and higher quality m
 
 */
 
-class WOSscript {
+class WOSScript {
   opts: Opts = {
     platform: 'web',
     type: 'object'
@@ -252,7 +252,7 @@ class WOSscript {
 }
 
 ;(
-  (globalThis?.window) && (Object.assign(window, { WOSscript })) 
+  (globalThis?.window) && (Object.assign(window, { WOSScript })) 
     ||
-  (globalThis?.module) && (module.exports = { WOSscript })
+  (globalThis?.module) && (module.exports = { WOSScript })
 );

@@ -1,12 +1,10 @@
+"use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -29,7 +27,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 
 // src/Gradule-web.js
 var require_Gradule_web = __commonJS({
-  "src/Gradule-web.js"(exports, module) {
+  "src/Gradule-web.js"(exports2, module2) {
     "use strict";
     var Preset = (() => {
       const presets = {
@@ -61,9 +59,9 @@ var require_Gradule_web = __commonJS({
       class Preset2 {
         static $ = function() {
           let o = {};
-          for (let preset in presets) {
-            let p = presets[preset];
-            o[preset] = new Preset2(p);
+          for (let preset2 in presets) {
+            let p = presets[preset2];
+            o[preset2] = new Preset2(p);
           }
           return o;
         }();
@@ -170,72 +168,62 @@ var require_Gradule_web = __commonJS({
       new Preset(colorArr).printStyled(string, styles, bold, italic);
     };
     var input = Preset.input;
-    var beautify = Preset.beautify;
-    var _exp_ = { print, printE, printWithStyles, input, beautify, preset: Preset };
-    if (typeof module !== "undefined") {
-      module.exports = _exp_;
+    var beautify2 = Preset.beautify;
+    var _exp_ = { print, printE, printWithStyles, input, beautify: beautify2, preset: Preset };
+    if (typeof module2 !== "undefined") {
+      module2.exports = _exp_;
     } else if (typeof window !== "undefined") {
       window.gradule = _exp_;
     }
   }
 });
 
-// src/types.ts
-var init_types = __esm({
-  "src/types.ts"() {
-    "use strict";
+// src/WOSScript.ts
+var Gd = __toESM(require_Gradule_web());
+var WOSScript = class {
+  opts = {
+    platform: "web",
+    type: "object"
+  };
+  constructor(opts2) {
+    this.upd(opts2);
   }
-});
-
-// src/WOSscript.ts
-var require_WOSscript = __commonJS({
-  "src/WOSscript.ts"(exports, module) {
-    var Gd = __toESM(require_Gradule_web());
-    init_types();
-    var WOSscript = class {
-      opts = {
-        platform: "web",
-        type: "object"
-      };
-      constructor(opts2) {
-        this.upd(opts2);
-      }
-      upd(opts2) {
-        if (opts2)
-          this.opts = { ...this.opts, ...opts2 };
-      }
-      parse(filestr, opts2) {
-        this.upd(opts2);
-        let mode = this.opts.type || "object";
-        if (mode === "sync")
-          mode = "function";
-        let groups = this.abstract(filestr, mode);
-        return groups;
-      }
-      abstract(filestr, type = "object") {
-        let RGheader = /^\/\*\s*@WOS\s*([^*]+)\s*\*\//gi.exec(filestr);
-        let head = "";
-        if (RGheader) {
-          let headerText = RGheader[1];
-          let header = headerText.split("\n");
-          head = header.join("\n");
-        }
-        let RGbody = filestr.replace((RGheader || [""])[0], "").trim();
-        let body = RGbody.replaceAll(";;", ",");
-        let $th = this;
-        function exporterSnip(doc) {
-          if ($th.opts.platform) {
-            switch ($th.opts.platform) {
-              case "node":
-                return doc + `
+  upd(opts2) {
+    if (opts2)
+      this.opts = { ...this.opts, ...opts2 };
+  }
+  parse(filestr, opts2) {
+    this.upd(opts2);
+    let mode = this.opts.type || "object";
+    if (mode === "sync")
+      mode = "function";
+    let groups = this.abstract(filestr, mode);
+    return groups;
+  }
+  abstract(filestr, type = "object") {
+    let RGheader = /^\/\*\s*@WOS\s*([^*]+)\s*\*\//gi.exec(filestr);
+    let head = "";
+    if (RGheader) {
+      let headerText = RGheader[1];
+      let header = headerText.split("\n");
+      head = header.join("\n");
+    }
+    let RGbody = filestr.replace((RGheader || [""])[0], "").trim();
+    let body = RGbody.replaceAll(";;", ",");
+    let $th = this;
+    function exporterSnip(doc) {
+      if ($th.opts.platform) {
+        switch ($th.opts.platform) {
+          case "node":
+            return doc + `
 module.exports = $wosglobe;`;
-                break;
-              case "web":
-                return doc + `
+            break;
+          case "web":
+            return doc + `
 window.$wosglobe = $wosglobe;`;
-                break;
-              case "neut":
-                return doc + `
+            break;
+          case "neut":
+            return doc + `
 ;(
   (
     (globalThis?.window) && (window.$wosglobe = $wosglobe)
@@ -245,128 +233,125 @@ window.$wosglobe = $wosglobe;`;
     (globalThis?.__dirname) && (globalThis.$wosglobe = $wosglobe)
   )
 );`;
-                break;
-            }
-          }
-          return doc;
-        }
-        function objectCase() {
-          let doc = "";
-          doc += head + (head ? `
-` : "") + [
-            `/*@!!`,
-            `  THIS IS A WOSSCRIPT`,
-            "  PLEASE REFER TO DOCUMENTATION WHEN VIEWING COMPILED WOSSCRIPTS",
-            `*/`,
-            ``,
-            `const $wosglobe = {`,
-            body.split("\n").map((a) => "  " + a).join("\n"),
-            `}`,
-            ``
-          ].join("\n");
-          doc = exporterSnip(doc);
-          return doc;
-        }
-        function classCase() {
-          let doc = "";
-          doc += head + (head ? `
-` : "") + [
-            `/*@!!`,
-            `  THIS IS A WOSSCRIPT`,
-            "  PLEASE REFER TO DOCUMENTATION WHEN VIEWING COMPILED WOSSCRIPTS",
-            ``,
-            "    - This document was built in Class Mode",
-            `*/`,
-            ``,
-            `const $wosglobe = class {`,
-            body.split("\n").map((a) => "  " + a).join("\n"),
-            `}`,
-            ``
-          ].join("\n");
-          doc = exporterSnip(doc);
-          return doc;
-        }
-        function asyncFunctionCase() {
-          let doc = "";
-          doc += head + (head ? `
-` : "") + [
-            `/*@!!`,
-            `  THIS IS A WOSSCRIPT`,
-            "  PLEASE REFER TO DOCUMENTATION WHEN VIEWING COMPILED WOSSCRIPTS",
-            ``,
-            "    - This document was built in Async Mode",
-            `*/`,
-            ``,
-            `const $wosglobe = async function() {`,
-            body.split("\n").map((a) => "  " + a).join("\n"),
-            `}`,
-            ``
-          ].join("\n");
-          doc = exporterSnip(doc);
-          return doc;
-        }
-        function syncFunctionCase() {
-          let doc = "";
-          doc += head + (head ? `
-` : "") + [
-            `/*@!!`,
-            `  THIS IS A WOSSCRIPT`,
-            "  PLEASE REFER TO DOCUMENTATION WHEN VIEWING COMPILED WOSSCRIPTS",
-            ``,
-            "    - This document was built in Sync Mode",
-            `*/`,
-            ``,
-            `const $wosglobe = function() {`,
-            body.split("\n").map((a) => "  " + a).join("\n"),
-            `}`,
-            ``
-          ].join("\n");
-          doc = exporterSnip(doc);
-          return doc;
-        }
-        let b = "";
-        switch (type) {
-          case "object":
-            return b += objectCase();
-            break;
-          case "class":
-            return b += classCase();
-            break;
-          case "async":
-            return b += asyncFunctionCase();
-            break;
-          case "function":
-            return b += syncFunctionCase();
-            break;
-          default:
-            return b += objectCase();
             break;
         }
-        return b;
       }
-      exec(code, opts) {
-        let parsedCode = this.parse(code, opts);
-        try {
-          var evalResp = eval(parsedCode);
-        } catch (e) {
-          console.error(
-            Gd.beautify(
-              "Failed to run WOSScript:",
-              [...Gd.preset.cherryblossoms, ...Gd.preset.amethyst].sort(() => Math.random() - 0.5),
-              true
-            ),
-            "\n\n",
-            e,
-            "\n",
-            parsedCode,
-            "\n\n"
-          );
-          return e;
-        }
-        return evalResp;
-      }
-    };
-    globalThis?.window && Object.assign(window, { WOSscript }) || globalThis?.module && (module.exports = { WOSscript });
+      return doc;
+    }
+    function objectCase() {
+      let doc = "";
+      doc += head + (head ? `
+` : "") + [
+        `/*@!!`,
+        `  THIS IS A WOSSCRIPT`,
+        "  PLEASE REFER TO DOCUMENTATION WHEN VIEWING COMPILED WOSSCRIPTS",
+        `*/`,
+        ``,
+        `const $wosglobe = {`,
+        body.split("\n").map((a) => "  " + a).join("\n"),
+        `}`,
+        ``
+      ].join("\n");
+      doc = exporterSnip(doc);
+      return doc;
+    }
+    function classCase() {
+      let doc = "";
+      doc += head + (head ? `
+` : "") + [
+        `/*@!!`,
+        `  THIS IS A WOSSCRIPT`,
+        "  PLEASE REFER TO DOCUMENTATION WHEN VIEWING COMPILED WOSSCRIPTS",
+        ``,
+        "    - This document was built in Class Mode",
+        `*/`,
+        ``,
+        `const $wosglobe = class {`,
+        body.split("\n").map((a) => "  " + a).join("\n"),
+        `}`,
+        ``
+      ].join("\n");
+      doc = exporterSnip(doc);
+      return doc;
+    }
+    function asyncFunctionCase() {
+      let doc = "";
+      doc += head + (head ? `
+` : "") + [
+        `/*@!!`,
+        `  THIS IS A WOSSCRIPT`,
+        "  PLEASE REFER TO DOCUMENTATION WHEN VIEWING COMPILED WOSSCRIPTS",
+        ``,
+        "    - This document was built in Async Mode",
+        `*/`,
+        ``,
+        `const $wosglobe = async function() {`,
+        body.split("\n").map((a) => "  " + a).join("\n"),
+        `}`,
+        ``
+      ].join("\n");
+      doc = exporterSnip(doc);
+      return doc;
+    }
+    function syncFunctionCase() {
+      let doc = "";
+      doc += head + (head ? `
+` : "") + [
+        `/*@!!`,
+        `  THIS IS A WOSSCRIPT`,
+        "  PLEASE REFER TO DOCUMENTATION WHEN VIEWING COMPILED WOSSCRIPTS",
+        ``,
+        "    - This document was built in Sync Mode",
+        `*/`,
+        ``,
+        `const $wosglobe = function() {`,
+        body.split("\n").map((a) => "  " + a).join("\n"),
+        `}`,
+        ``
+      ].join("\n");
+      doc = exporterSnip(doc);
+      return doc;
+    }
+    let b = "";
+    switch (type) {
+      case "object":
+        return b += objectCase();
+        break;
+      case "class":
+        return b += classCase();
+        break;
+      case "async":
+        return b += asyncFunctionCase();
+        break;
+      case "function":
+        return b += syncFunctionCase();
+        break;
+      default:
+        return b += objectCase();
+        break;
+    }
+    return b;
   }
-});
-export default require_WOSscript();
+  exec(code, opts) {
+    let parsedCode = this.parse(code, opts);
+    try {
+      var evalResp = eval(parsedCode);
+    } catch (e) {
+      console.error(
+        Gd.beautify(
+          "Failed to run WOSScript:",
+          [...Gd.preset.cherryblossoms, ...Gd.preset.amethyst].sort(() => Math.random() - 0.5),
+          true
+        ),
+        "\n\n",
+        e,
+        "\n",
+        parsedCode,
+        "\n\n"
+      );
+      return e;
+    }
+    return evalResp;
+  }
+};
+globalThis?.window && Object.assign(window, { WOSScript }) || globalThis?.module && (module.exports = { WOSScript });
