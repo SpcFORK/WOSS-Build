@@ -1,8 +1,6 @@
 const express = require('express');
 const path = require('path');
 const mime = require('mime-types');
-const gradule = require('./src/Gradule-web');
-
 
 const app = express();
 
@@ -29,8 +27,8 @@ app.get('*/:file', (req, res) => {
 });
 
 app.listen(3000, () => {
-  gradule.print(
-    'Server started on port 3000',
-    [...gradule.preset.cherryblossoms, ...gradule.preset.amethyst],
-  )
+  // gradule.print(
+  //   'Server started on port 3000',
+  //   [...gradule.preset.cherryblossoms, ...gradule.preset.amethyst],
+  // )
 });
