@@ -455,16 +455,18 @@ var buildCommand = {
   command: "build",
   describe: "Build the project",
   handler: async (argv) => {
-    const buildDir = argv.buildDir || "dist";
+    const buildDir = argv.buildDir || "src";
     const actualDirLoc = join(__dirname, "..", buildDir);
     const actualDir = await getOrMkeDir(actualDirLoc);
     console.log(green(`Building into ${buildDir}...`));
-    try {
-      await build_(actualDir, argv.buildPlat || "neut");
-    } catch (err) {
-      console.log(yellow(`Error: ${err}`));
-    } finally {
-      console.log(green("Done!"));
+    {
+      try {
+        await build_(actualDir, argv.buildPlat || "neut");
+      } catch (err) {
+        console.log(yellow(`Error: ${err}`));
+      } finally {
+        console.log(green("Done!"));
+      }
     }
   }
 };
@@ -472,7 +474,7 @@ var cleanCommand = {
   command: "clean",
   describe: "Clean the build output",
   handler: async (argv) => {
-    const outputPath = path.join(__dirname, argv.buildDir || "dist");
+    const outputPath = path.join(__dirname, argv.buildDir || "src");
     await rimraf(outputPath, {
       preserveRoot: true
     });
@@ -493,7 +495,7 @@ This is a tool for building ${yellow("WOSS")} scripts into JS.
   yargs.option("buildDir", {
     describe: "Directory to build into",
     type: "string",
-    default: "dist"
+    default: "src"
   }).option("buildPlat", {
     describe: "Platform to build into",
     type: "string",

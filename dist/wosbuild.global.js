@@ -13293,16 +13293,18 @@ ${customMsgs.join("\n")}` : "";
     command: "build",
     describe: "Build the project",
     handler: async (argv) => {
-      const buildDir = argv.buildDir || "dist";
+      const buildDir = argv.buildDir || "src";
       const actualDirLoc = (0, import_path11.join)(__dirname, "..", buildDir);
       const actualDir = await getOrMkeDir(actualDirLoc);
       console.log((0, import_colors.green)(`Building into ${buildDir}...`));
-      try {
-        await build_(actualDir, argv.buildPlat || "neut");
-      } catch (err) {
-        console.log((0, import_colors.yellow)(`Error: ${err}`));
-      } finally {
-        console.log((0, import_colors.green)("Done!"));
+      {
+        try {
+          await build_(actualDir, argv.buildPlat || "neut");
+        } catch (err) {
+          console.log((0, import_colors.yellow)(`Error: ${err}`));
+        } finally {
+          console.log((0, import_colors.green)("Done!"));
+        }
       }
     }
   };
@@ -13310,7 +13312,7 @@ ${customMsgs.join("\n")}` : "";
     command: "clean",
     describe: "Clean the build output",
     handler: async (argv) => {
-      const outputPath = import_path12.default.join(__dirname, argv.buildDir || "dist");
+      const outputPath = import_path12.default.join(__dirname, argv.buildDir || "src");
       await rimraf(outputPath, {
         preserveRoot: true
       });
@@ -13331,7 +13333,7 @@ This is a tool for building ${(0, import_colors.yellow)("WOSS")} scripts into JS
     yargs_default.option("buildDir", {
       describe: "Directory to build into",
       type: "string",
-      default: "dist"
+      default: "src"
     }).option("buildPlat", {
       describe: "Platform to build into",
       type: "string",

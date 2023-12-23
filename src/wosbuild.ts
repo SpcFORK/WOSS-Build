@@ -102,12 +102,14 @@ const buildCommand = {
     const buildDir = argv.buildDir || 'dist';
     const actualDirLoc = join(__dirname, '..', buildDir);
     const actualDir = await getOrMkeDir(actualDirLoc);
+    const srcLoc = join(__dirname, '..', buildDir);
+    const src = await getOrMkeDir(actualDirLoc);
 
-    console.log(green(`Building into ${buildDir}...`));
+    console.log(green(`Building ${srcLoc} into ${buildDir}...`));
 
     { // Do.
       try {
-        await build_(actualDir, argv.buildPlat || 'neut');
+        await build_(src, argv.buildPlat || 'neut');
       }
 
       catch (err) {
