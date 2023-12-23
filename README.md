@@ -11,28 +11,14 @@ WOSScript is a scripting language designed to simplify the process of writing an
 
 ## Getting Started
 
-To get started with WOSScript, include the `dist/WOSscript.js` file in your project and follow the documentation to learn how to use its features.
+`$ node wosbuild.js` =>
 
-## Examples
+```bash
+Welcome to WOSBUILD!
 
-Here are some examples of how you can use WOSScript:
+This is a tool for building WOSS scripts into JS.
 
-```javascript
-// Create a new instance of WOSscript
-const wosScript = new WOSScript();
-
-// Parse a WOSScript string
-const result = wosScript.parse(`your WOSScript code here`);
+Options:
+  --help     Show help                                                 [boolean]
+  --version  Show version number                                       [boolean]
 ```
-
-For more examples and usage, please refer to the Documentation.
-
-## Contributing
-
-Contributions are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-
-WOSScript is open source software licensed under the MIT license.
