@@ -456,13 +456,15 @@ var buildCommand = {
   command: "build",
   describe: "Build the project",
   handler: async (argv) => {
-    const buildDir = argv.buildDir || "src";
+    const buildDir = argv.buildDir || "dist";
     const actualDirLoc = (0, import_path.join)(__dirname, "..", buildDir);
     const actualDir = await getOrMkeDir(actualDirLoc);
-    console.log((0, import_colors.green)(`Building into ${buildDir}...`));
+    const srcLoc = (0, import_path.join)(__dirname, "..", buildDir);
+    const src = await getOrMkeDir(actualDirLoc);
+    console.log((0, import_colors.green)(`Building ${srcLoc} into ${buildDir}...`));
     {
       try {
-        await build_(actualDir, argv.buildPlat || "neut");
+        await build_(src, argv.buildPlat || "neut");
       } catch (err) {
         console.log((0, import_colors.yellow)(`Error: ${err}`));
       } finally {
@@ -475,7 +477,7 @@ var cleanCommand = {
   command: "clean",
   describe: "Clean the build output",
   handler: async (argv) => {
-    const outputPath = import_path2.default.join(__dirname, argv.buildDir || "src");
+    const outputPath = import_path2.default.join(__dirname, argv.buildDir || "dist");
     await (0, import_rimraf.rimraf)(outputPath, {
       preserveRoot: true
     });
@@ -496,7 +498,7 @@ This is a tool for building ${(0, import_colors.yellow)("WOSS")} scripts into JS
   import_yargs.default.option("buildDir", {
     describe: "Directory to build into",
     type: "string",
-    default: "src"
+    default: "dist"
   }).option("buildPlat", {
     describe: "Platform to build into",
     type: "string",
