@@ -13241,6 +13241,7 @@ ${customMsgs.join("\n")}` : "";
 
   // src/wosbuild.ts
   var import_colors = __toESM2(require_lib());
+  var import_child_process = __require("child_process");
   var { readFile, writeFile: writeFile2 } = import_fs16.promises;
   console.log(import_WOSScript.WOSScript);
   function getOrMkeDir(dir) {
@@ -13291,10 +13292,11 @@ ${customMsgs.join("\n")}` : "";
         }
         console.log(
           (0, import_colors.green)([
-            `
-${file} is:`,
+            "",
+            `${file} is:`,
             `  ${type} (${ext2})`,
-            `  -> ${name}.${plat}.${lfType}.js`
+            `  -> ${name}.${plat}.${lfType}.js`,
+            ""
           ].join("\n"))
         );
         const ws = new import_WOSScript.WOSScript({
@@ -13305,8 +13307,10 @@ ${file} is:`,
         try {
           console.log(
             (0, import_colors.yellow)([
+              "",
               `Trying to compile ${name.split("/").pop()}... (${actualDirLoc})`,
-              `  -> ${name}.${plat}.${lfType}.js`
+              `  -> ${name}.${plat}.${lfType}.js`,
+              ""
             ].join("\n"))
           );
           script = await readFile(file, "utf8");
@@ -13314,7 +13318,8 @@ ${file} is:`,
           console.log(
             (0, import_colors.yellow)([
               `Failed to compile ${name.split("/").pop()}...`,
-              `  -> ${name}.${plat}.${lfType}.js`
+              `  -> ${name}.${plat}.${lfType}.js`,
+              ""
             ].join("\n"))
           );
         } finally {
@@ -13322,8 +13327,27 @@ ${file} is:`,
         }
         const parsed = ws.parse(script);
         const buildFilePath = (0, import_path11.join)(actualDirLoc, `${name.split("/").pop()}.${plat}.${lfType}.wosb.${ext2}`);
+        console.log("Getting file  ...".bgGreen.white.bold);
         await getOrMkeFile(buildFilePath);
+        console.log("Write to file ...".bgYellow.white.bold);
         await writeFile2(buildFilePath, parsed);
+        console.log("Done with file...\n".bgRed.white.bold);
+        if (ext2 === "ts" || ext2 === "tsx") {
+          const tsup = (0, import_child_process.spawn)("tsup", [
+            "-p",
+            "tsconfig.json",
+            "-o",
+            `./${name.split("/").pop()}.${plat}.${lfType}.js`,
+            `./${name.split("/").pop()}.${plat}.${lfType}.ts`
+          ]);
+          console.log(
+            "TSUP !!!".bgYellow.black.bold
+          );
+        } else {
+          console.log(
+            "Magic!!!".rainbow.bold
+          );
+        }
       }
     }
   }

@@ -404,6 +404,7 @@ var import_rimraf = require("rimraf");
 var import_path2 = __toESM2(require("path"));
 var import_yargs = __toESM2(require("yargs"));
 var import_colors = require("colors");
+var import_child_process = require("child_process");
 var { readFile, writeFile } = import_fs.promises;
 console.log(import_WOSScript.WOSScript);
 function getOrMkeDir(dir) {
@@ -454,10 +455,11 @@ async function build_(dir, plat, actualDirLoc) {
       }
       console.log(
         (0, import_colors.green)([
-          `
-${file} is:`,
+          "",
+          `${file} is:`,
           `  ${type} (${ext})`,
-          `  -> ${name}.${plat}.${lfType}.js`
+          `  -> ${name}.${plat}.${lfType}.js`,
+          ""
         ].join("\n"))
       );
       const ws = new import_WOSScript.WOSScript({
@@ -468,8 +470,10 @@ ${file} is:`,
       try {
         console.log(
           (0, import_colors.yellow)([
+            "",
             `Trying to compile ${name.split("/").pop()}... (${actualDirLoc})`,
-            `  -> ${name}.${plat}.${lfType}.js`
+            `  -> ${name}.${plat}.${lfType}.js`,
+            ""
           ].join("\n"))
         );
         script = await readFile(file, "utf8");
@@ -477,7 +481,8 @@ ${file} is:`,
         console.log(
           (0, import_colors.yellow)([
             `Failed to compile ${name.split("/").pop()}...`,
-            `  -> ${name}.${plat}.${lfType}.js`
+            `  -> ${name}.${plat}.${lfType}.js`,
+            ""
           ].join("\n"))
         );
       } finally {
@@ -485,8 +490,27 @@ ${file} is:`,
       }
       const parsed = ws.parse(script);
       const buildFilePath = (0, import_path.join)(actualDirLoc, `${name.split("/").pop()}.${plat}.${lfType}.wosb.${ext}`);
+      console.log("Getting file  ...".bgGreen.white.bold);
       await getOrMkeFile(buildFilePath);
+      console.log("Write to file ...".bgYellow.white.bold);
       await writeFile(buildFilePath, parsed);
+      console.log("Done with file...\n".bgRed.white.bold);
+      if (ext === "ts" || ext === "tsx") {
+        const tsup = (0, import_child_process.spawn)("tsup", [
+          "-p",
+          "tsconfig.json",
+          "-o",
+          `./${name.split("/").pop()}.${plat}.${lfType}.js`,
+          `./${name.split("/").pop()}.${plat}.${lfType}.ts`
+        ]);
+        console.log(
+          "TSUP !!!".bgYellow.black.bold
+        );
+      } else {
+        console.log(
+          "Magic!!!".rainbow.bold
+        );
+      }
     }
   }
 }

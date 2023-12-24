@@ -11,6 +11,8 @@ import path from 'path';
 import yargs from 'yargs';
 import { green, yellow } from 'colors';
 
+import { spawn } from 'child_process';
+
 const { readFile, writeFile } = fsPromises;
 
 console.log(WOSScript)
@@ -86,9 +88,11 @@ async function build_(dir: string, plat: OptsPlat, actualDirLoc: string) {
 
       console.log(
         green([
-          `\n${file} is:`,
+          '',
+          `${file} is:`,
           `  ${type} (${ext})`,
-          `  -> ${name}.${plat}.${lfType}.js`
+          `  -> ${name}.${plat}.${lfType}.js`,
+          '',
         ].join('\n'))
       )
 
@@ -103,8 +107,10 @@ async function build_(dir: string, plat: OptsPlat, actualDirLoc: string) {
       try {
         console.log(
           yellow([
+            '',
             `Trying to compile ${name.split('/').pop()}... (${actualDirLoc})`,
-            `  -> ${name}.${plat}.${lfType}.js`
+            `  -> ${name}.${plat}.${lfType}.js`,
+            ''
           ].join('\n'))
         )
         script = await readFile(file, 'utf8');
@@ -112,8 +118,8 @@ async function build_(dir: string, plat: OptsPlat, actualDirLoc: string) {
         console.log(
           yellow([
             `Failed to compile ${name.split('/').pop()}...`,
-            `  -> ${name}.${plat}.${lfType}.js`
-
+            `  -> ${name}.${plat}.${lfType}.js`,
+            ''
             ].join('\n'))
         )
       }
@@ -126,8 +132,31 @@ async function build_(dir: string, plat: OptsPlat, actualDirLoc: string) {
       
       const buildFilePath = join(actualDirLoc, `${name.split('/').pop()}.${plat}.${lfType}.wosb.${ext}`)      
 
+      console.log('Getting file  ...'.bgGreen.white.bold)
       await getOrMkeFile(buildFilePath);
+      console.log('Write to file ...'.bgYellow.white.bold)
       await writeFile(buildFilePath, parsed);
+      console.log('Done with file...\n'.bgRed.white.bold)
+
+      // If TS, TSUP
+      if (ext === 'ts' || ext === 'tsx') {
+        // Execute in shell
+        const tsup = spawn('tsup', [
+          '-p',
+          'tsconfig.json',
+          '-o',
+          `./${name.split('/').pop()}.${plat}.${lfType}.js`,
+          `./${name.split('/').pop()}.${plat}.${lfType}.ts`
+        ]);
+
+        console.log(
+          'TSUP !!!'.bgYellow.black.bold
+        )
+      } else {
+        console.log(
+          'Magic!!!'.rainbow.bold
+        )
+      }
     }
   }
 }
