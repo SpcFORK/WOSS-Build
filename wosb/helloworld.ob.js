@@ -15,3 +15,7 @@ jeez: ({
     wow: "wow"
   }
 });;
+
+haha: {
+  clueless: 'wow'
+};;

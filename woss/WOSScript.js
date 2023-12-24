@@ -1,5 +1,5 @@
 "use strict"
-const module = { exports: {} }
+;!globalThis?.module && (Object.assign(globalThis, { module: { exports: {} } }));
 "use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;

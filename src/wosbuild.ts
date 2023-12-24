@@ -13,21 +13,32 @@ import { green, yellow } from 'colors';
 
 const { readFile, writeFile } = fsPromises;
 
+console.log(WOSScript)
 
 function getOrMkeDir(dir: string): Promise<string> {
   return fsPromises.access(dir)
     .then(() => dir)
     .catch(async () => {
-      const dirPath = join(process.cwd(), dir);
+      const dirPath = dir
       await fsPromises.mkdir(dirPath, { recursive: true });
       return dirPath;
     });
 }
 
 
+function getOrMkeFile(filePath: string): Promise<string> {
+  return fsPromises.access(filePath)
+    .then(() => filePath)
+    .catch(async () => {
+      await fsPromises.writeFile(filePath, '');
+      return filePath;
+    });
+}
+
+
 function dirContents(dir: string) {
   return fsPromises.readdir(dir)
-    .then((files) => files.map((file) => join(dir, file)));
+    .then((files) => files.map((file) => dir + '/' + file));
 }
 
 
@@ -37,19 +48,23 @@ function isDir(file: string) {
 
 // ---
 
-async function build_(dir: string, plat: OptsPlat) {
-  const contents = await dirContents(dir);
+async function build_(dir: string, plat: OptsPlat, actualDirLoc: string) {
+  const contents = await dirContents(dir)
 
   for (const file of contents) {
     const isdir = await isDir(file);
 
-    if (isdir) {
-      await build_(file, plat);
-    }
+    console.log(
+      green(`Now on ${file}`)
+    )
 
-    else {
-      // File is split like so; <name>.<type>.<ext>
+    if (isdir) {
+      await build_(join(dir, file), plat, join(actualDirLoc, file));
+    } else {
       const split = file.split('.');
+
+      if (split.length != 3) continue
+      
       const name = split[0];
       const type = split[1];
       const ext = split[2];
@@ -60,14 +75,6 @@ async function build_(dir: string, plat: OptsPlat) {
         continue;
       }
 
-      /*
-      Essentially, the file extention determines the base of your object,
-        - .ob.<?> -> cased within {}
-        - .cl.<?> -> cased within a class
-        - .af.<?> -> cased within an async function
-        - .sf.<?> -> cased within a sync function
-      */
-
       if (type === 'cl') {
         lfType = 'class';
       } else if (type === 'sf') {
@@ -76,19 +83,51 @@ async function build_(dir: string, plat: OptsPlat) {
         lfType = 'async';
       }
 
+
+      console.log(
+        green([
+          `\n${file} is:`,
+          `  ${type} (${ext})`,
+          `  -> ${name}.${plat}.${lfType}.js`
+        ].join('\n'))
+      )
+
+      
       const ws = new WOSScript({
         type: lfType,
         platform: plat,
       });
 
-      let script = await readFile(file, 'utf8');
+      
+      var script = ''
+      try {
+        console.log(
+          yellow([
+            `Trying to compile ${name.split('/').pop()}... (${actualDirLoc})`,
+            `  -> ${name}.${plat}.${lfType}.js`
+          ].join('\n'))
+        )
+        script = await readFile(file, 'utf8');
+      } catch {
+        console.log(
+          yellow([
+            `Failed to compile ${name.split('/').pop()}...`,
+            `  -> ${name}.${plat}.${lfType}.js`
+
+            ].join('\n'))
+        )
+      }
+
+      finally {
+        console.time(green(`Compiled ${name.split('/').pop()}`))
+      }
+      
       const parsed = ws.parse(script);
+      
+      const buildFilePath = join(actualDirLoc, `${name.split('/').pop()}.${plat}.${lfType}.wosb.${ext}`)      
 
-      // Save in build folder
-      const buildDir = await getOrMkeDir(join(process.cwd(), 'build'));
-      const buildFile = join(buildDir, `${name}.${type}.wosb.${ext}`);
-
-      await writeFile(buildFile, parsed);
+      await getOrMkeFile(buildFilePath);
+      await writeFile(buildFilePath, parsed);
     }
   }
 }
@@ -99,17 +138,16 @@ const buildCommand = {
   command: 'build',
   describe: 'Build the project',
   handler: async (argv: any) => {
-    const buildDir = argv.buildDir || 'dist';
-    const actualDirLoc = join(__dirname, '..', buildDir);
-    const actualDir = await getOrMkeDir(actualDirLoc);
-    const srcLoc = join(__dirname, '..', buildDir);
-    const src = await getOrMkeDir(actualDirLoc);
+    const buildDir = argv.buildDir || 'wosdist';
+    const actualDir = await getOrMkeDir(buildDir);
+    const srcLoc = join(__dirname, '..', 'wosb');
+    const src = await getOrMkeDir(buildDir);
 
     console.log(green(`Building ${srcLoc} into ${buildDir}...`));
 
     { // Do.
       try {
-        await build_(src, argv.buildPlat || 'neut');
+        await build_(srcLoc, argv.buildPlat || 'neut', buildDir);
       }
 
       catch (err) {
@@ -121,6 +159,8 @@ const buildCommand = {
       }
     }
 
+    process.exit(0);
+
   },
 };
 
@@ -128,7 +168,7 @@ const cleanCommand = {
   command: 'clean',
   describe: 'Clean the build output',
   handler: async (argv: any) => {
-    const outputPath = path.join(__dirname, argv.buildDir || 'dist');
+    const outputPath = path.join(__dirname, argv.buildDir || 'wosb');
     await rimraf(outputPath, {
       preserveRoot: true,
     });
@@ -165,7 +205,7 @@ else {
     .option('buildDir', {
       describe: 'Directory to build into',
       type: 'string',
-      default: 'dist'
+      default: process.cwd() + '/wosdist'
     })
     .option('buildPlat', {
       describe: 'Platform to build into',

@@ -1,4 +1,4 @@
-run = "tsup; node ./dist/wosbuild.js"
+run = "node ./dist/wosbuild.js build; tsup; node index.js"
 entrypoint = "index.ts"
 hidden = [".config", "package-lock.json", "tsconfig.json"]
 

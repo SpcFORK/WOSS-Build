@@ -26,9 +26,9 @@ var __toESM2 = (mod, isNodeMode, target) => (target = mod != null ? __create2(__
 
 // woss/WOSScript.js
 var require_WOSScript = __commonJS2({
-  "woss/WOSScript.js"(exports, module2) {
+  "woss/WOSScript.js"(exports, module) {
     "use strict";
-    var module = { exports: {} };
+    !globalThis?.module && Object.assign(globalThis, { module: { exports: {} } });
     var __create = Object.create;
     var __defProp = Object.defineProperty;
     var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -60,7 +60,7 @@ var require_WOSScript = __commonJS2({
     ));
     var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
     var require_Gradule_web = __commonJS({
-      "src/Gradule-web.js"(exports2, module22) {
+      "src/Gradule-web.js"(exports2, module2) {
         "use strict";
         var Preset = (() => {
           const presets = {
@@ -203,8 +203,8 @@ var require_WOSScript = __commonJS2({
         var input = Preset.input;
         var beautify2 = Preset.beautify;
         var _exp_ = { print, printE, printWithStyles, input, beautify: beautify2, preset: Preset };
-        if (typeof module22 !== "undefined") {
-          module22.exports = _exp_;
+        if (typeof module2 !== "undefined") {
+          module2.exports = _exp_;
         } else if (typeof window !== "undefined") {
           window.gradule = _exp_;
         }
@@ -404,27 +404,39 @@ import path from "path";
 import yargs from "yargs";
 import { green, yellow } from "colors";
 var { readFile, writeFile } = fsPromises;
+console.log(import_WOSScript.WOSScript);
 function getOrMkeDir(dir) {
   return fsPromises.access(dir).then(() => dir).catch(async () => {
-    const dirPath = join(process.cwd(), dir);
+    const dirPath = dir;
     await fsPromises.mkdir(dirPath, { recursive: true });
     return dirPath;
   });
 }
+function getOrMkeFile(filePath) {
+  return fsPromises.access(filePath).then(() => filePath).catch(async () => {
+    await fsPromises.writeFile(filePath, "");
+    return filePath;
+  });
+}
 function dirContents(dir) {
-  return fsPromises.readdir(dir).then((files) => files.map((file) => join(dir, file)));
+  return fsPromises.readdir(dir).then((files) => files.map((file) => dir + "/" + file));
 }
 function isDir(file) {
   return fsPromises.stat(file).then((stat) => stat.isDirectory());
 }
-async function build_(dir, plat) {
+async function build_(dir, plat, actualDirLoc) {
   const contents = await dirContents(dir);
   for (const file of contents) {
     const isdir = await isDir(file);
+    console.log(
+      green(`Now on ${file}`)
+    );
     if (isdir) {
-      await build_(file, plat);
+      await build_(join(dir, file), plat, join(actualDirLoc, file));
     } else {
       const split = file.split(".");
+      if (split.length != 3)
+        continue;
       const name = split[0];
       const type = split[1];
       const ext = split[2];
@@ -439,15 +451,41 @@ async function build_(dir, plat) {
       } else if (type === "af") {
         lfType = "async";
       }
+      console.log(
+        green([
+          `
+${file} is:`,
+          `  ${type} (${ext})`,
+          `  -> ${name}.${plat}.${lfType}.js`
+        ].join("\n"))
+      );
       const ws = new import_WOSScript.WOSScript({
         type: lfType,
         platform: plat
       });
-      let script = await readFile(file, "utf8");
+      var script = "";
+      try {
+        console.log(
+          yellow([
+            `Trying to compile ${name.split("/").pop()}... (${actualDirLoc})`,
+            `  -> ${name}.${plat}.${lfType}.js`
+          ].join("\n"))
+        );
+        script = await readFile(file, "utf8");
+      } catch {
+        console.log(
+          yellow([
+            `Failed to compile ${name.split("/").pop()}...`,
+            `  -> ${name}.${plat}.${lfType}.js`
+          ].join("\n"))
+        );
+      } finally {
+        console.time(green(`Compiled ${name.split("/").pop()}`));
+      }
       const parsed = ws.parse(script);
-      const buildDir = await getOrMkeDir(join(process.cwd(), "build"));
-      const buildFile = join(buildDir, `${name}.${type}.wosb.${ext}`);
-      await writeFile(buildFile, parsed);
+      const buildFilePath = join(actualDirLoc, `${name.split("/").pop()}.${plat}.${lfType}.wosb.${ext}`);
+      await getOrMkeFile(buildFilePath);
+      await writeFile(buildFilePath, parsed);
     }
   }
 }
@@ -455,28 +493,28 @@ var buildCommand = {
   command: "build",
   describe: "Build the project",
   handler: async (argv) => {
-    const buildDir = argv.buildDir || "dist";
-    const actualDirLoc = join(__dirname, "..", buildDir);
-    const actualDir = await getOrMkeDir(actualDirLoc);
-    const srcLoc = join(__dirname, "..", buildDir);
-    const src = await getOrMkeDir(actualDirLoc);
+    const buildDir = argv.buildDir || "wosdist";
+    const actualDir = await getOrMkeDir(buildDir);
+    const srcLoc = join(__dirname, "..", "wosb");
+    const src = await getOrMkeDir(buildDir);
     console.log(green(`Building ${srcLoc} into ${buildDir}...`));
     {
       try {
-        await build_(src, argv.buildPlat || "neut");
+        await build_(srcLoc, argv.buildPlat || "neut", buildDir);
       } catch (err) {
         console.log(yellow(`Error: ${err}`));
       } finally {
         console.log(green("Done!"));
       }
     }
+    process.exit(0);
   }
 };
 var cleanCommand = {
   command: "clean",
   describe: "Clean the build output",
   handler: async (argv) => {
-    const outputPath = path.join(__dirname, argv.buildDir || "dist");
+    const outputPath = path.join(__dirname, argv.buildDir || "wosb");
     await rimraf(outputPath, {
       preserveRoot: true
     });
@@ -497,7 +535,7 @@ This is a tool for building ${yellow("WOSS")} scripts into JS.
   yargs.option("buildDir", {
     describe: "Directory to build into",
     type: "string",
-    default: "dist"
+    default: process.cwd() + "/wosdist"
   }).option("buildPlat", {
     describe: "Platform to build into",
     type: "string",
